@@ -34,3 +34,22 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+//HASHING THE PASSWORD
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
+  }
+  this.password = await bcrypt.hash(this.password, 10);
+});
+//COMPARING PASSWORD
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+//GEBERATING A JWT TOKEN FOR AUTHORIZATION
+userSchema.methods.getJWTToken = function () {
+  return JsonWebTokenError.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+};
