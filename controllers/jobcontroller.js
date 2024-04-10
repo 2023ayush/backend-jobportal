@@ -1,9 +1,9 @@
-import { catchAsyncErrors } from "../middlewares/catchAsyncError.js";
+import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import { Job } from "../models/jobSchema.js";
 import ErrorHandler from "../middlewares/error.js";
 
 //POST A JOB
-export const postJob = catchAsyncErrors(async (req, res, next) => {
+export const postJob = catchAsyncError(async (req, res, next) => {
   const { role } = req.user;
   if (role === "Job Seeker") {
     return next(
@@ -57,5 +57,14 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
     success: true,
     message: "Job Posted Successfully!",
     job,
+  });
+});
+
+// GET ALL JOBS
+export const getAllJobs = catchAsyncError(async (req, res, next) => {
+  const jobs = await Job.find({ expired: false });
+  res.status(200).json({
+    success: true,
+    jobs,
   });
 });
